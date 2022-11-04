@@ -2,10 +2,17 @@ using UnityEngine;
 
 public class Runner : MonoBehaviour
 {
+    [Header("Movement")]
     [SerializeField]
     private float speed = 10f;
     [SerializeField]
     private float rotSpeed = 3f;
+
+    [Header("Laps")]
+    [SerializeField]
+    private Transform[] checkpoints;
+    private int currentCheckpoint = 1;
+    private int currentLap = 1;
 
     private Vector3[] rangefinders;
     private float[] ranges;
@@ -19,6 +26,14 @@ public class Runner : MonoBehaviour
         SetRangefinders();
         // Initialise ranges
         ranges = new float[rangefinders.Length];
+    }
+
+    private void FixedUpdate()
+    {
+        Scan();
+        transform.position += transform.forward * speed * Time.deltaTime;
+        // Send inputs to NN
+        // Move
     }
 
     // Initialise rangefinders
@@ -68,8 +83,33 @@ public class Runner : MonoBehaviour
         rb.MovePosition(transform.forward * speed * Time.deltaTime);
     }
 
+    // Set up lap system
+    private void OnTriggerEnter(Collider trigger)
+    {
+        // If pass through a checkpoint
+        if(trigger.CompareTag("Checkpoint"))
+        {
+            // Increment checkpoint count
+            currentCheckpoint++;
+            // If exceeded max number checkpoints, means got back to start
+            if(currentCheckpoint >= checkpoints.Length)
+            {
+                // Reset checkpoint count
+                currentCheckpoint = 1;
+                // Increment lap count
+                currentLap++;
+            }
+        }
+    }
+
+    private float GetFitness()
+    {
+        return Vector3.Distance(transform.position, checkpoints[currentCheckpoint - 1].position) * currentCheckpoint * currentLap;
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.LogError($"Runner collided with {collision.collider.name}.");
+        float fitness = GetFitness();
+        Debug.LogError($"Runner collided with {collision.collider.name}. Fitness: {fitness}");
     }
 }
