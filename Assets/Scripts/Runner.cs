@@ -19,6 +19,8 @@ public class Runner : MonoBehaviour
 
     private Rigidbody rb;
 
+    private NN nn;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -26,20 +28,20 @@ public class Runner : MonoBehaviour
         SetRangefinders();
         // Initialise ranges
         ranges = new float[rangefinders.Length];
+
+        // Instantiate a neural network for this runner
+        nn = new NN(5, 4);
     }
 
-    private void Start()
+    private void FixedUpdate()
     {
-        NN nn = new NN(5, 4);
+        // Get inputs
+        Scan();
+        // Send inputs to NN
+        float nnOut = nn.FeedForward(ranges);
+        // Move
+        Move(nnOut);
     }
-
-//    private void FixedUpdate()
-//    {
-//        Scan();
-//        transform.position += transform.forward * speed * Time.deltaTime;
-//        // Send inputs to NN
-//        // Move
-//    }
 
     // Initialise rangefinders
     private void SetRangefinders()
@@ -85,7 +87,7 @@ public class Runner : MonoBehaviour
     {
         // Rotate runner by 'rotAmt' amount
         transform.rotation = Quaternion.Euler(transform.eulerAngles + Vector3.up * rotAmt * rotSpeed);
-        rb.MovePosition(transform.forward * speed * Time.deltaTime);
+        rb.MovePosition(transform.position + transform.forward * speed * Time.deltaTime);
     }
 
     // Set up lap system
@@ -107,11 +109,13 @@ public class Runner : MonoBehaviour
         }
     }
 
+    // Get a fitness value based on the distance from the nearest checkpoint, the number of checkpoints the runner has run in this lap, and the current no. of laps
     private float GetFitness()
     {
         return Vector3.Distance(transform.position, checkpoints[currentCheckpoint - 1].position) * currentCheckpoint * currentLap;
     }
 
+    // Run on collision with a wall
     private void OnCollisionEnter(Collision collision)
     {
         float fitness = GetFitness();

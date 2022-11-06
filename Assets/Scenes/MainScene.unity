@@ -271,7 +271,6 @@ GameObject:
   - component: {fileID: 653846468}
   - component: {fileID: 653846472}
   - component: {fileID: 653846473}
-  - component: {fileID: 653846474}
   m_Layer: 6
   m_Name: Runner
   m_TagString: Untagged
@@ -381,30 +380,18 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 653846467}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e71d64bda644ca348ba5cb15cd804541, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 40
+  speed: 1
   rotSpeed: 3
   checkpoints:
   - {fileID: 1534626471}
   - {fileID: 1334007364}
   - {fileID: 1891472937}
   - {fileID: 1317438084}
---- !u!114 &653846474
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 653846467}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23d037996e0acc64a81a662fef7b146a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,7 +4,7 @@ using ZestyP4nda.Core;
 
 public class NN
 {
-    private float[] inputs; // Inputs 
+    private float[] _inputs; // Inputs 
     private float[,] hLW; // Hidden layer weights
     private float[] hLB; // Hidden layer biases
     private float[] oW; // Output layer weights (only 1 node)
@@ -19,9 +19,9 @@ public class NN
         return Math.Max(0, x);
     }
 
-    private double Sigmoid(float x)
+    private float Sigmoid(float x)
     {
-        return 1 / (1 + Math.Pow(Math.E, -x));
+        return (float)(1 / (1 + Math.Pow(Math.E, -x)));
     }
 
     // Constructor
@@ -62,8 +62,10 @@ public class NN
     }
 
     // Feed forward algorithm
-    public double FeedForward()
+    public float FeedForward(float[] inputs)
     {
+        // Set local '_inputs' variable to 'inputs' parameter
+        _inputs = inputs;
         // Initialise an array of activation of each hidden node
         float[] hiddenActivation = new float[_numHidden];
         Array.Clear(hiddenActivation, 0, _numHidden - 1);
@@ -75,7 +77,7 @@ public class NN
             // Loop through each weight and multiply by corresponding input value
             for (int j = 0; j < _numInputs; j++)
             {
-                _hiddenOuti += hLW[i, j] * inputs[j];
+                _hiddenOuti += hLW[i, j] * _inputs[j];
             }
             // Assign the hidden activation value to the activatin of this node
             hiddenActivation[i] = ReLU(_hiddenOuti + hLB[i]);
