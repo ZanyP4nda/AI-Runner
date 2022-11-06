@@ -28,13 +28,18 @@ public class Runner : MonoBehaviour
         ranges = new float[rangefinders.Length];
     }
 
-    private void FixedUpdate()
+    private void Start()
     {
-        Scan();
-        transform.position += transform.forward * speed * Time.deltaTime;
-        // Send inputs to NN
-        // Move
+        NN nn = new NN(5, 4);
     }
+
+//    private void FixedUpdate()
+//    {
+//        Scan();
+//        transform.position += transform.forward * speed * Time.deltaTime;
+//        // Send inputs to NN
+//        // Move
+//    }
 
     // Initialise rangefinders
     private void SetRangefinders()
