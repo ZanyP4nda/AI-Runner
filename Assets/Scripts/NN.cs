@@ -62,7 +62,7 @@ public class NN
     }
 
     // Feed forward algorithm
-    private void FeedForward()
+    public double FeedForward()
     {
         // Initialise an array of activation of each hidden node
         float[] hiddenActivation = new float[_numHidden];
@@ -81,8 +81,6 @@ public class NN
             hiddenActivation[i] = ReLU(_hiddenOuti + hLB[i]);
         }
 
-        // Initialise a double for the activation of the output node
-        double outputActivation = 0f;
         // Assign a value for the output value of this output node (before activation)
         float _outputOut = 0f;
         // Loop through each weight and multiply by corresponding hidden node activation
@@ -90,7 +88,7 @@ public class NN
         {
             _outputOut += oW[i] * hiddenActivation[i];
         }
-        // Get activation value of the output node
-        outputActivation = Sigmoid(_outputOut + oB);
+        // Return the activation of the output node
+        return Sigmoid(_outputOut + oB);
     }
 }
