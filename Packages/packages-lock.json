@@ -100,6 +100,13 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
+    "com.zestyp4nda.core": {
+      "version": "https://github.com/ZestyP4nda/com.zestyp4nda.core.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "b60c643e9f39553a89b538adaf9e5e5702a46c3d"
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,
