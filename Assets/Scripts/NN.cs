@@ -13,6 +13,17 @@ public class NN
     private int _numInputs; // No. of inputs
     private int _numHidden; // No. of hidden nodes
 
+    // Activation functions
+    private float ReLU(float x)
+    {
+        return Math.Max(0, x);
+    }
+
+    private double Sigmoid(float x)
+    {
+        return 1 / (1 + Math.Pow(Math.E, -x));
+    }
+
     // Constructor
     public NN(int numInputs, int numHidden)
     {
@@ -48,5 +59,38 @@ public class NN
 
         // Set the output bias to 0
         oB = 0;
+    }
+
+    // Feed forward algorithm
+    private void FeedForward()
+    {
+        // Initialise an array of activation of each hidden node
+        float[] hiddenActivation = new float[_numHidden];
+        Array.Clear(hiddenActivation, 0, _numHidden - 1);
+        // Loop through each hidden node
+        for (int i = 0; i < _numHidden; i++)
+        {
+            // Assign a value for the output value of this hidden node (before activation)
+            float _hiddenOuti = 0f;
+            // Loop through each weight and multiply by corresponding input value
+            for (int j = 0; j < _numInputs; j++)
+            {
+                _hiddenOuti += hLW[i, j] * inputs[j];
+            }
+            // Assign the hidden activation value to the activatin of this node
+            hiddenActivation[i] = ReLU(_hiddenOuti + hLB[i]);
+        }
+
+        // Initialise a double for the activation of the output node
+        double outputActivation = 0f;
+        // Assign a value for the output value of this output node (before activation)
+        float _outputOut = 0f;
+        // Loop through each weight and multiply by corresponding hidden node activation
+        for (int i = 0; i < _numHidden; i++)
+        {
+            _outputOut += oW[i] * hiddenActivation[i];
+        }
+        // Get activation value of the output node
+        outputActivation = Sigmoid(_outputOut + oB);
     }
 }
