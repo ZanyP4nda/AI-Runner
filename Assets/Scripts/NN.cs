@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 using ZestyP4nda.Core;
 
 public class NN
@@ -38,8 +37,8 @@ public class NN
 
     private void InitialiseHiddenLayer()
     {
-        // Fill the hidden layer weights matrix with random values between 0 and 1
-        hLW = DataHelper.Get2DArrayFuncValue(_numHidden, _numInputs, x => UnityEngine.Random.Range(0f, 1f));
+        // Fill the hidden layer weights matrix with random values between -1 and 1
+        hLW = DataHelper.Get2DArrayFuncValue(_numHidden, _numInputs, x => UnityEngine.Random.Range(-1f, 1f));
         
         // Fill the hidden layer bias array with 0
         hLB = new float[_numHidden];
@@ -50,11 +49,11 @@ public class NN
     {
         // Initialise the output weight array
         oW = new float[_numHidden];
-        // Fill the output weight array with random values between 0 and 1
+        // Fill the output weight array with random values between -1 and 1
         for (int i = 0; i < _numHidden; i++)
         {
-            // Set this weight to a random value between 0 and 1
-            oW[i] = UnityEngine.Random.Range(0f, 1f);
+            // Set this weight to a random value between -1 and 1
+            oW[i] = UnityEngine.Random.Range(-1f, 1f);
         }
 
         // Set the output bias to 0

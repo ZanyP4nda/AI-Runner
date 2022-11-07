@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class Runner : MonoBehaviour
@@ -7,10 +8,9 @@ public class Runner : MonoBehaviour
     private float speed = 10f;
     [SerializeField]
     private float rotSpeed = 3f;
+    private bool isMoving = true;
 
     [Header("Laps")]
-    [SerializeField]
-    private Transform[] checkpoints;
     private int currentCheckpoint = 1;
     private int currentLap = 1;
 
@@ -20,11 +20,13 @@ public class Runner : MonoBehaviour
     private Rigidbody rb;
 
     private NN nn;
+    public float fitness;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
 
+        // Initialise rangefinders
         SetRangefinders();
         // Initialise ranges
         ranges = new float[rangefinders.Length];
@@ -35,12 +37,19 @@ public class Runner : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Get inputs
-        Scan();
-        // Send inputs to NN
-        float nnOut = nn.FeedForward(ranges);
-        // Move
-        Move(nnOut);
+        if(isMoving)
+        {
+            // Get inputs
+            Scan();
+            // Normalise all inputs
+            NormaliseRanges();
+
+            // Send inputs to NN
+            float nnOut = nn.FeedForward(ranges);
+
+            // Move
+            Move(nnOut);
+        }
     }
 
     // Initialise rangefinders
@@ -82,6 +91,17 @@ public class Runner : MonoBehaviour
         }
     }
 
+    // Normalise all ranges
+    private void NormaliseRanges()
+    {
+        float minRange = ranges.Min();
+        float maxRange = ranges.Max();
+        for (int i = 0; i < ranges.Length; i++)
+        {
+            ranges[i] = (ranges[i] - minRange) / (maxRange - minRange);
+        }
+    }
+
     // Rotate runner by 'rotAmt' and move forwards
     private void Move(float rotAmt)
     {
@@ -99,7 +119,7 @@ public class Runner : MonoBehaviour
             // Increment checkpoint count
             currentCheckpoint++;
             // If exceeded max number checkpoints, means got back to start
-            if(currentCheckpoint >= checkpoints.Length)
+            if(currentCheckpoint >= Manager.manager.checkpoints.Length)
             {
                 // Reset checkpoint count
                 currentCheckpoint = 1;
@@ -110,15 +130,16 @@ public class Runner : MonoBehaviour
     }
 
     // Get a fitness value based on the distance from the nearest checkpoint, the number of checkpoints the runner has run in this lap, and the current no. of laps
-    private float GetFitness()
+    private void GetFitness()
     {
-        return Vector3.Distance(transform.position, checkpoints[currentCheckpoint - 1].position) * currentCheckpoint * currentLap;
+        fitness = Vector3.Distance(transform.position, Manager.manager.checkpoints[currentCheckpoint - 1].position) * currentCheckpoint * currentLap;
     }
 
     // Run on collision with a wall
     private void OnCollisionEnter(Collision collision)
     {
-        float fitness = GetFitness();
-        Debug.LogError($"Runner collided with {collision.collider.name}. Fitness: {fitness}");
+        isMoving = false; // Stop moving
+        GetFitness(); // Get fitness score
+        Manager.manager.RunnerDie(); // Call manager method
     }
 }
