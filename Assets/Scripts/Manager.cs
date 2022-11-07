@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,6 +22,8 @@ public class Manager : MonoBehaviour
     private int numRunners;
     private int numRunnersAlive; // Counter to track no. of runners alive
     private List<Runner> runners;
+    [SerializeField]
+    private Runner[] crossPool;
 
     private void Awake()
     {
@@ -63,9 +66,20 @@ public class Manager : MonoBehaviour
             GenEnd();            
     }
 
+    private Runner[] GetEliteRunners()
+    {
+        // Order the runners in descending order of fitness
+        runners = runners.OrderByDescending(r => r.fitness).ToList();
+        // Find 10% of the number of runners or set as 2
+        int numElite = Math.Max(2, numRunners / 10);
+        // Return the top 10% (or top 2 if too little) of runners in an array
+        return runners.Take(numElite).ToArray();
+    }
+
     private void GenEnd()
     {
         // Get top 10% of runners by fitness
+        crossPool = GetEliteRunners();
         // Assign crossing partners
         // Cross DNA
         // Mutate

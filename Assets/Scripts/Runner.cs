@@ -141,5 +141,6 @@ public class Runner : MonoBehaviour
         isMoving = false; // Stop moving
         GetFitness(); // Get fitness score
         Manager.manager.RunnerDie(); // Call manager method
+        Debug.Log($"{gameObject.name} fitness: {fitness}");
     }
 }
