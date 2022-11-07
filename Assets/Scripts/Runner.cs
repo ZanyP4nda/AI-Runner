@@ -45,22 +45,22 @@ public class Runner : MonoBehaviour
             _nn = new NN(5, 4); // Initialise new NN
     }
 
-//    private void FixedUpdate()
-//    {
-//        if(isMoving)
-//        {
-//            // Get inputs
-//            Scan();
-//            // Normalise all inputs
-//            NormaliseRanges();
-//
-//            // Send inputs to NN
-//            float nnOut = _nn.FeedForward(ranges);
-//
-//            // Move
-//            Move(nnOut);
-//        }
-//    }
+    private void FixedUpdate()
+    {
+        if(isMoving)
+        {
+            // Get inputs
+            Scan();
+            // Normalise all inputs
+            NormaliseRanges();
+
+            // Send inputs to NN
+            float nnOut = _nn.FeedForward(ranges);
+
+            // Move
+            Move(nnOut);
+        }
+    }
 
     // Initialise rangefinders
     private void SetRangefinders()

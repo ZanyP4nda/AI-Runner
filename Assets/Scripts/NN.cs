@@ -125,7 +125,6 @@ public class NN
     // Takes a 1D array as input, sets the NN values
     public void SetBrain(float[] newBrain)
     {
-        Debug.Log($"{_name}: SETTING BRAIN AS: {DataHelper.GetArrayToString(newBrain)}");
         // Set hidden layer weights
         for (int i = 0; i < _numHidden; i++)
         {

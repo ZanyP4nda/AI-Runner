@@ -39,8 +39,8 @@ public class Manager : MonoBehaviour
 
     private void Start()
     {
-//        InitialiseCheckpoints();
-//        SpawnRunners();
+        InitialiseCheckpoints();
+        SpawnRunners();
     }
 
     private void InitialiseCheckpoints()
@@ -65,6 +65,8 @@ public class Manager : MonoBehaviour
             // If after generation 0, set the runner's NN to a child NN
             if(generationNum > 0)
                 _runner.Init(childrenNN[i]);
+            else
+                _runner.Init();
             // Add to list
             runners.Add(_runner);
         }
@@ -160,7 +162,7 @@ public class Manager : MonoBehaviour
     private void GenEnd()
     {
         // Create an array of normalised fitness scores
-        float[] normalisedFitness = GetNormalisedRunnerFitness();
+        crossProbabilities = GetNormalisedRunnerFitness();
 
         // Instantiate childrenNN list
         childrenNN = new List<NN>();
@@ -175,6 +177,15 @@ public class Manager : MonoBehaviour
             childrenNN.Add(child1);
             childrenNN.Add(child2);
         }
+
+        generationNum++;
+
+        // Destroy all runners
+        foreach(Runner _runner in runners)
+            GameObject.Destroy(_runner.gameObject);
+
+        // Spawn new generation of runners
+        SpawnRunners();
     }
 
     public void EndConditionMet(Runner eliteRunner)
