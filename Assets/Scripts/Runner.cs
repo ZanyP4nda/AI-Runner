@@ -8,6 +8,7 @@ public class Runner : MonoBehaviour
     private float speed = 10f;
     [SerializeField]
     private float rotSpeed = 3f;
+    [SerializeField]
     private bool isMoving = true;
 
     [Header("Laps")]
@@ -19,7 +20,8 @@ public class Runner : MonoBehaviour
 
     private Rigidbody rb;
 
-    private NN nn;
+    private NN _nn;
+    public NN nn { get {return _nn;} } // public getter of private variable nn
     public float fitness;
 
     private void Awake()
@@ -32,7 +34,7 @@ public class Runner : MonoBehaviour
         ranges = new float[rangefinders.Length];
 
         // Instantiate a neural network for this runner
-        nn = new NN(5, 4);
+        _nn = new NN(5, 4);
     }
 
     private void FixedUpdate()
@@ -45,7 +47,7 @@ public class Runner : MonoBehaviour
             NormaliseRanges();
 
             // Send inputs to NN
-            float nnOut = nn.FeedForward(ranges);
+            float nnOut = _nn.FeedForward(ranges);
 
             // Move
             Move(nnOut);

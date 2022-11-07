@@ -1,13 +1,13 @@
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 using ZestyP4nda.Core;
 
 public class NN
 {
     private float[] _inputs; // Inputs 
     private float[,] hLW; // Hidden layer weights
-    private float[] hLB; // Hidden layer biases
     private float[] oW; // Output layer weights (only 1 node)
-    private float oB; // Output layer bias (only 1 node)
 
     private int _numInputs; // No. of inputs
     private int _numHidden; // No. of hidden nodes
@@ -39,10 +39,6 @@ public class NN
     {
         // Fill the hidden layer weights matrix with random values between -1 and 1
         hLW = DataHelper.Get2DArrayFuncValue(_numHidden, _numInputs, x => UnityEngine.Random.Range(-1f, 1f));
-        
-        // Fill the hidden layer bias array with 0
-        hLB = new float[_numHidden];
-        Array.Clear(hLB, 0, hLB.Length-1);
     }
 
     private void InitialiseOutputLayer()
@@ -55,9 +51,6 @@ public class NN
             // Set this weight to a random value between -1 and 1
             oW[i] = UnityEngine.Random.Range(-1f, 1f);
         }
-
-        // Set the output bias to 0
-        oB = 0;
     }
 
     // Feed forward algorithm
@@ -79,7 +72,7 @@ public class NN
                 _hiddenOuti += hLW[i, j] * _inputs[j];
             }
             // Assign the hidden activation value to the activatin of this node
-            hiddenActivation[i] = ReLU(_hiddenOuti + hLB[i]);
+            hiddenActivation[i] = ReLU(_hiddenOuti);
         }
 
         // Assign a value for the output value of this output node (before activation)
@@ -90,6 +83,45 @@ public class NN
             _outputOut += oW[i] * hiddenActivation[i];
         }
         // Return the activation of the output node
-        return Sigmoid(_outputOut + oB);
+        return Sigmoid(_outputOut);
+    }
+
+    // Get flattened
+    public float[] GetFlattennedDNA()
+    {
+        List<float> flattened = new List<float>();
+        // Flatten hidden layer weights and add to array
+        for (int i = 0; i < hLW.GetLength(0); i++)
+        {
+            for (int j = 0; j < hLW.GetLength(1); j++)
+            {
+                flattened.Add(hLW[i, j]);
+            }
+        } 
+        // Add all output layer weights to the array
+        flattened.AddRange(oW);
+
+        return flattened.ToArray();
+    }
+
+    // Takes a 1D array as input, sets the NN values
+    public void SetBrain(float[] newBrain)
+    {
+        // Set hidden layer weights
+        for (int i = 0; i < _numHidden; i++)
+        {
+            for (int j = 0; j < hLW.GetLength(1); j++)
+            {
+                hLW[i, j] = newBrain[(i + 1) * (j + 1) - 1];
+            }
+        }
+
+        // Set output layer weights
+        int index = 0;
+        for (int i = _numHidden * _numInputs; i < newBrain.Length; i++)
+        {
+            oW[index] = newBrain[i];
+            index++;
+        }
     }
 }

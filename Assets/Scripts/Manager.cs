@@ -22,8 +22,6 @@ public class Manager : MonoBehaviour
     private int numRunners;
     private int numRunnersAlive; // Counter to track no. of runners alive
     private List<Runner> runners;
-    [SerializeField]
-    private Runner[] crossPool;
 
     private void Awake()
     {
@@ -66,20 +64,55 @@ public class Manager : MonoBehaviour
             GenEnd();            
     }
 
-    private Runner[] GetEliteRunners()
+    private float[] GetNormalisedRunnerFitness()
     {
-        // Order the runners in descending order of fitness
-        runners = runners.OrderByDescending(r => r.fitness).ToList();
-        // Find 10% of the number of runners or set as 2
-        int numElite = Math.Max(2, numRunners / 10);
-        // Return the top 10% (or top 2 if too little) of runners in an array
-        return runners.Take(numElite).ToArray();
+        // Create an array of all runners' fitness
+        float[] fitness = runners.Select(x => x.fitness).ToArray();
+
+        // Normalise fitness scores
+        float minFitness = fitness.Min();
+        float maxFitness = fitness.Max();
+        for (int i = 0; i < fitness.Length; i++)
+        {
+            fitness[i] = (fitness[i] - minFitness) / (maxFitness - minFitness);
+        }
+
+        return fitness;
+    }
+
+    private int GetCrossIndex(float[] crossProbabilities)
+    {
+        // Get a random float between 0 and 1
+        float r = UnityEngine.Random.Range(0, 1f);
+        // Probability algorithm
+        int index = 0;
+        while(r > 0)
+        {
+            r -= crossProbabilities[index];
+            index++;
+        }
+        return (index - 1);
+    }
+
+    private void CrossOver(float[] crossProbabilities)
+    {
+        // Get 1 index
+        int parent1Index = GetCrossIndex(crossProbabilities);
+        // Get another index
+        int parent2Index = GetCrossIndex(crossProbabilities);
+        // Make sure the 2nd index is not the same as the first
+        while(parent2Index == parent1Index)
+            parent2Index = GetCrossIndex(crossProbabilities);
+
+        NN parent1 = runners[parent1Index].nn;
+        NN parent2 = runners[parent2Index].nn;
     }
 
     private void GenEnd()
     {
-        // Get top 10% of runners by fitness
-        crossPool = GetEliteRunners();
+        // Create an array of normalised fitness scores
+        float[] normalisedFitness = GetNormalisedRunnerFitness();
+        // Use the probability-based system to get runners to cross
         // Assign crossing partners
         // Cross DNA
         // Mutate
