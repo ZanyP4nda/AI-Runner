@@ -7,10 +7,14 @@ public class NN
 {
     private float[] _inputs; // Inputs 
     private float[,] hLW; // Hidden layer weights
+    public float[,] HLW { get{return hLW;} }
     private float[] oW; // Output layer weights (only 1 node)
+    public float[] OW { get{return oW;} }
 
     private int _numInputs; // No. of inputs
     private int _numHidden; // No. of hidden nodes
+
+    private string _name;
 
     // Activation functions
     private float ReLU(float x)
@@ -24,11 +28,12 @@ public class NN
     }
 
     // Constructor
-    public NN(int numInputs, int numHidden)
+    public NN(int numInputs, int numHidden, string name = null)
     {
         // Set private variables to contructor parameters
         _numInputs = numInputs;
         _numHidden = numHidden;
+        _name = name;
 
         // Initialisation
         InitialiseHiddenLayer();
@@ -107,12 +112,13 @@ public class NN
     // Takes a 1D array as input, sets the NN values
     public void SetBrain(float[] newBrain)
     {
+        Debug.Log($"{_name}: SETTING BRAIN AS: {DataHelper.GetArrayToString(newBrain)}");
         // Set hidden layer weights
         for (int i = 0; i < _numHidden; i++)
         {
             for (int j = 0; j < hLW.GetLength(1); j++)
             {
-                hLW[i, j] = newBrain[(i + 1) * (j + 1) - 1];
+                hLW[i, j] = newBrain[i * hLW.GetLength(1) + j];
             }
         }
 

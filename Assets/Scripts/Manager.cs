@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using ZestyP4nda.Core;
 
 public class Manager : MonoBehaviour
 {
@@ -23,6 +24,8 @@ public class Manager : MonoBehaviour
     private int numRunnersAlive; // Counter to track no. of runners alive
     private List<Runner> runners;
 
+    private float[] crossProbabilities;
+
     private void Awake()
     {
         manager = this;
@@ -30,8 +33,43 @@ public class Manager : MonoBehaviour
 
     private void Start()
     {
-        InitialiseCheckpoints();
-        SpawnRunners();
+//        InitialiseCheckpoints();
+//        SpawnRunners();
+
+        float[] parent1Brain = new float[24];
+        for (int i = 0; i < parent1Brain.Length; i++)
+        {
+            parent1Brain[i] = 1f;
+        }
+
+        float[] parent2Brain = new float[24];
+        for (int i = 0; i < parent2Brain.Length; i++)
+        {
+            parent2Brain[i] = 2f;
+        }
+
+        NN parent1 = new NN(5, 4, "parent1");
+        parent1.SetBrain(parent1Brain);
+        Debug.Log("===== Parent 1 =====");
+        Debug.Log($"hLW: {DataHelper.Get2DArrayToString(parent1.HLW)}");
+        Debug.Log($"oW: {DataHelper.GetArrayToString(parent1.OW)}");
+
+        NN parent2 = new NN(5, 4, "parent2");
+        parent2.SetBrain(parent2Brain);
+        Debug.Log("===== Parent 2 =====");
+        Debug.Log($"hLW: {DataHelper.Get2DArrayToString(parent2.HLW)}");
+        Debug.Log($"oW: {DataHelper.GetArrayToString(parent2.OW)}");
+
+        Debug.Log("===== CROSSING OVER =====");
+        CrossOver(parent1, parent2);
+
+        Debug.Log("===== Parent 1 =====");
+        Debug.Log($"hLW: {DataHelper.Get2DArrayToString(parent1.HLW)}");
+        Debug.Log($"oW: {DataHelper.GetArrayToString(parent1.OW)}");
+
+        Debug.Log("===== Parent 2 =====");
+        Debug.Log($"hLW: {DataHelper.Get2DArrayToString(parent2.HLW)}");
+        Debug.Log($"oW: {DataHelper.GetArrayToString(parent2.OW)}");
     }
 
     private void InitialiseCheckpoints()
@@ -80,7 +118,7 @@ public class Manager : MonoBehaviour
         return fitness;
     }
 
-    private int GetCrossIndex(float[] crossProbabilities)
+    private int GetCrossIndex()
     {
         // Get a random float between 0 and 1
         float r = UnityEngine.Random.Range(0, 1f);
@@ -94,18 +132,32 @@ public class Manager : MonoBehaviour
         return (index - 1);
     }
 
-    private void CrossOver(float[] crossProbabilities)
+    // Get 2 parents
+    private Tuple<NN, NN> GetCrossParents()
     {
         // Get 1 index
-        int parent1Index = GetCrossIndex(crossProbabilities);
+        int parent1Index = GetCrossIndex();
         // Get another index
-        int parent2Index = GetCrossIndex(crossProbabilities);
+        int parent2Index = GetCrossIndex();
         // Make sure the 2nd index is not the same as the first
         while(parent2Index == parent1Index)
-            parent2Index = GetCrossIndex(crossProbabilities);
+            parent2Index = GetCrossIndex();
 
-        NN parent1 = runners[parent1Index].nn;
-        NN parent2 = runners[parent2Index].nn;
+        return Tuple.Create(runners[parent1Index].nn, runners[parent2Index].nn);
+    }
+
+    private void CrossOver(NN parent1, NN parent2)
+    {
+        // Get the flattened DNA of both parents
+        float[] parent1Flattened = parent1.GetFlattennedDNA();
+        float[] parent2Flattened = parent2.GetFlattennedDNA();
+
+        // Get a random splitting point
+        int randomSplitIndex = UnityEngine.Random.Range(0, parent1Flattened.Length);
+
+        // Cross parent 1 and parent 2
+        parent1.SetBrain(parent1Flattened.Take(randomSplitIndex).Concat(parent2Flattened.Skip(randomSplitIndex)).ToArray());
+        parent2.SetBrain(parent2Flattened.Take(randomSplitIndex).Concat(parent1Flattened.Skip(randomSplitIndex)).ToArray());
     }
 
     private void GenEnd()
