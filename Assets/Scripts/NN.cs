@@ -17,6 +17,7 @@ public class NN
     public int NumHidden {get{return _numHidden;}}
 
     private string _name;
+    public string Name {get{return _name;}}
     private bool _isInitialiseNN;
 
     // Activation functions

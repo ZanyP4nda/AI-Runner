@@ -1,7 +1,9 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using ZestyP4nda.Core;
 
 public class Manager : MonoBehaviour
 {
@@ -28,7 +30,6 @@ public class Manager : MonoBehaviour
     [SerializeField]
     private float mutateChance = 0.1f;
     private List<NN> childrenNN;
-
     private float[] crossProbabilities;
 
     private void Awake()
@@ -135,9 +136,9 @@ public class Manager : MonoBehaviour
         float[] child2DNA = Mutate(parent2Flattened.Take(randomSplitIndex).Concat(parent1Flattened.Skip(randomSplitIndex)).ToArray());
 
         // Instantiate children NN
-        NN child1NN = new NN(parent1.NumInputs, parent1.NumHidden, null, false);
+        NN child1NN = new NN(parent1.NumInputs, parent1.NumHidden, $"Runner{generationNum}x{childrenNN.Count}", false);
         child1NN.SetBrain(child1DNA);
-        NN child2NN = new NN(parent1.NumInputs, parent1.NumHidden, null, false);
+        NN child2NN = new NN(parent1.NumInputs, parent1.NumHidden, $"Runner{generationNum}x{childrenNN.Count+1}", false);
         child2NN.SetBrain(child2DNA);
 
         return Tuple.Create(child1NN, child2NN);
@@ -174,5 +175,18 @@ public class Manager : MonoBehaviour
             childrenNN.Add(child1);
             childrenNN.Add(child2);
         }
+    }
+
+    public void EndConditionMet(Runner eliteRunner)
+    {
+        Debug.Log($"===== {eliteRunner.nn.Name} has met the end condition! =====");
+        // Freeze all runners
+        foreach(Runner runner in runners)
+            runner.Freeze();
+
+        // Write eliteRunner DNA to file
+        string save = $"{eliteRunner.nn.Name}:\n{DataHelper.GetArrayToString(eliteRunner.nn.GetFlattennedDNA())}";
+        string destinationPath = Application.persistentDataPath + "/eliteRunnerDNA.txt";
+        File.WriteAllText(destinationPath, save);
     }
 }

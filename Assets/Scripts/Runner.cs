@@ -135,6 +135,10 @@ public class Runner : MonoBehaviour
                 currentCheckpoint = 1;
                 // Increment lap count
                 currentLap++;
+
+                // If completed 3 laps, call Manager method
+                if(currentLap > 3)
+                    Manager.manager.EndConditionMet(this);
             }
         }
     }
@@ -145,10 +149,15 @@ public class Runner : MonoBehaviour
         fitness = Vector3.Distance(transform.position, Manager.manager.checkpoints[currentCheckpoint - 1].position) * currentCheckpoint * currentLap;
     }
 
+    public void Freeze()
+    {
+        isMoving = false;
+    }
+
     // Run on collision with a wall
     private void OnCollisionEnter(Collision collision)
     {
-        isMoving = false; // Stop moving
+        Freeze();
         GetFitness(); // Get fitness score
         Manager.manager.RunnerDie(); // Call manager method
         Debug.Log($"{gameObject.name} fitness: {fitness}");
