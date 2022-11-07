@@ -12,9 +12,12 @@ public class NN
     public float[] OW { get{return oW;} }
 
     private int _numInputs; // No. of inputs
+    public int NumInputs {get{return _numInputs;}}
     private int _numHidden; // No. of hidden nodes
+    public int NumHidden {get{return _numHidden;}}
 
     private string _name;
+    private bool _isInitialiseNN;
 
     // Activation functions
     private float ReLU(float x)
@@ -28,12 +31,13 @@ public class NN
     }
 
     // Constructor
-    public NN(int numInputs, int numHidden, string name = null)
+    public NN(int numInputs, int numHidden, string name = null, bool isInitialiseNN = true)
     {
         // Set private variables to contructor parameters
         _numInputs = numInputs;
         _numHidden = numHidden;
         _name = name;
+        _isInitialiseNN = isInitialiseNN;
 
         // Initialisation
         InitialiseHiddenLayer();
@@ -42,8 +46,16 @@ public class NN
 
     private void InitialiseHiddenLayer()
     {
-        // Fill the hidden layer weights matrix with random values between -1 and 1
-        hLW = DataHelper.Get2DArrayFuncValue(_numHidden, _numInputs, x => UnityEngine.Random.Range(-1f, 1f));
+        if(_isInitialiseNN)
+        {
+            // Fill the hidden layer weights matrix with random values between -1 and 1
+            hLW = DataHelper.Get2DArrayFuncValue(_numHidden, _numInputs, x => UnityEngine.Random.Range(-1f, 1f));
+        }
+        else
+        {
+            // If don't want to initialise NN, fill with zeros
+            hLW = DataHelper.Get2DArray(_numHidden, _numInputs, 0f);
+        }
     }
 
     private void InitialiseOutputLayer()
@@ -53,8 +65,8 @@ public class NN
         // Fill the output weight array with random values between -1 and 1
         for (int i = 0; i < _numHidden; i++)
         {
-            // Set this weight to a random value between -1 and 1
-            oW[i] = UnityEngine.Random.Range(-1f, 1f);
+            // Set this weight to a random value between -1 and 1 OR 0 if don't want to initialise NN
+            oW[i] = (_isInitialiseNN) ? UnityEngine.Random.Range(-1f, 1f) : 0f;
         }
     }
 

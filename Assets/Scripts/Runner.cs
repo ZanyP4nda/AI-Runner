@@ -34,8 +34,15 @@ public class Runner : MonoBehaviour
         // Initialise ranges
         ranges = new float[rangefinders.Length];
 
-        // Instantiate a neural network for this runner
-        _nn = new NN(5, 4);
+    }
+
+    // Constructor
+    public void Init(NN setNN = null)
+    {
+        if(setNN != null)
+            _nn = setNN; // Set _nn to given nn
+        else
+            _nn = new NN(5, 4); // Initialise new NN
     }
 
 //    private void FixedUpdate()

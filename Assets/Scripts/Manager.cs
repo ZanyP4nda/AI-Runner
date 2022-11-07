@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using ZestyP4nda.Core;
 
 public class Manager : MonoBehaviour
 {
@@ -24,6 +23,12 @@ public class Manager : MonoBehaviour
     private int numRunnersAlive; // Counter to track no. of runners alive
     private List<Runner> runners;
 
+    [Header("Genetic Algorithm")]
+    private int generationNum = 0;
+    [SerializeField]
+    private float mutateChance = 0.1f;
+    private List<NN> childrenNN;
+
     private float[] crossProbabilities;
 
     private void Awake()
@@ -35,41 +40,6 @@ public class Manager : MonoBehaviour
     {
 //        InitialiseCheckpoints();
 //        SpawnRunners();
-
-        float[] parent1Brain = new float[24];
-        for (int i = 0; i < parent1Brain.Length; i++)
-        {
-            parent1Brain[i] = 1f;
-        }
-
-        float[] parent2Brain = new float[24];
-        for (int i = 0; i < parent2Brain.Length; i++)
-        {
-            parent2Brain[i] = 2f;
-        }
-
-        NN parent1 = new NN(5, 4, "parent1");
-        parent1.SetBrain(parent1Brain);
-        Debug.Log("===== Parent 1 =====");
-        Debug.Log($"hLW: {DataHelper.Get2DArrayToString(parent1.HLW)}");
-        Debug.Log($"oW: {DataHelper.GetArrayToString(parent1.OW)}");
-
-        NN parent2 = new NN(5, 4, "parent2");
-        parent2.SetBrain(parent2Brain);
-        Debug.Log("===== Parent 2 =====");
-        Debug.Log($"hLW: {DataHelper.Get2DArrayToString(parent2.HLW)}");
-        Debug.Log($"oW: {DataHelper.GetArrayToString(parent2.OW)}");
-
-        Debug.Log("===== CROSSING OVER =====");
-        CrossOver(parent1, parent2);
-
-        Debug.Log("===== Parent 1 =====");
-        Debug.Log($"hLW: {DataHelper.Get2DArrayToString(parent1.HLW)}");
-        Debug.Log($"oW: {DataHelper.GetArrayToString(parent1.OW)}");
-
-        Debug.Log("===== Parent 2 =====");
-        Debug.Log($"hLW: {DataHelper.Get2DArrayToString(parent2.HLW)}");
-        Debug.Log($"oW: {DataHelper.GetArrayToString(parent2.OW)}");
     }
 
     private void InitialiseCheckpoints()
@@ -90,7 +60,12 @@ public class Manager : MonoBehaviour
         for (int i = 0; i < numRunners; i++)
         {
             // Instantiate a runner and add its Runner component to the list of runners
-            runners.Add(Instantiate(runnerPrefab, runnerSpawn.position, Quaternion.identity).GetComponent<Runner>());
+            Runner _runner = Instantiate(runnerPrefab, runnerSpawn.position, Quaternion.identity).GetComponent<Runner>();
+            // If after generation 0, set the runner's NN to a child NN
+            if(generationNum > 0)
+                _runner.Init(childrenNN[i]);
+            // Add to list
+            runners.Add(_runner);
         }
     }
 
@@ -146,7 +121,7 @@ public class Manager : MonoBehaviour
         return Tuple.Create(runners[parent1Index].nn, runners[parent2Index].nn);
     }
 
-    private void CrossOver(NN parent1, NN parent2)
+    private Tuple<NN, NN> CrossOver(NN parent1, NN parent2)
     {
         // Get the flattened DNA of both parents
         float[] parent1Flattened = parent1.GetFlattennedDNA();
@@ -155,18 +130,49 @@ public class Manager : MonoBehaviour
         // Get a random splitting point
         int randomSplitIndex = UnityEngine.Random.Range(0, parent1Flattened.Length);
 
-        // Cross parent 1 and parent 2
-        parent1.SetBrain(parent1Flattened.Take(randomSplitIndex).Concat(parent2Flattened.Skip(randomSplitIndex)).ToArray());
-        parent2.SetBrain(parent2Flattened.Take(randomSplitIndex).Concat(parent1Flattened.Skip(randomSplitIndex)).ToArray());
+        // Cross over parents and apply mutation
+        float[] child1DNA = Mutate(parent1Flattened.Take(randomSplitIndex).Concat(parent2Flattened.Skip(randomSplitIndex)).ToArray());
+        float[] child2DNA = Mutate(parent2Flattened.Take(randomSplitIndex).Concat(parent1Flattened.Skip(randomSplitIndex)).ToArray());
+
+        // Instantiate children NN
+        NN child1NN = new NN(parent1.NumInputs, parent1.NumHidden, null, false);
+        child1NN.SetBrain(child1DNA);
+        NN child2NN = new NN(parent1.NumInputs, parent1.NumHidden, null, false);
+        child2NN.SetBrain(child2DNA);
+
+        return Tuple.Create(child1NN, child2NN);
+    }
+
+    private float[] Mutate(float[] flatChildDNA)
+    {
+        float[] _flatChildDNA = flatChildDNA;
+        // If random mutation chance is met
+        if(UnityEngine.Random.Range(0f, 1f) <= mutateChance)
+        {
+            // Assign a random element in the child DNA to a random value betweeen -1 and 1
+            _flatChildDNA[UnityEngine.Random.Range(0, _flatChildDNA.Length)] = UnityEngine.Random.Range(-1f, 1f);
+        }
+
+        return  _flatChildDNA;
     }
 
     private void GenEnd()
     {
         // Create an array of normalised fitness scores
         float[] normalisedFitness = GetNormalisedRunnerFitness();
+
+        // Instantiate childrenNN list
+        childrenNN = new List<NN>();
         // Use the probability-based system to get runners to cross
-        // Assign crossing partners
-        // Cross DNA
-        // Mutate
+        for (int i = 0; i < numRunners / 2; i++)
+        {
+            // Get the 2 parents to cross
+            var (parent1, parent2) = GetCrossParents();
+            // Cross over
+            var (child1, child2) = CrossOver(parent1, parent2);
+            // Add children to list
+            childrenNN.Add(child1);
+            childrenNN.Add(child2);
+        }
     }
 }
