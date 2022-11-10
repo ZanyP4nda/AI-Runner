@@ -22,19 +22,30 @@ public class Manager : MonoBehaviour
     private Transform runnerSpawn;
     [SerializeField]
     private int numRunners;
+    [SerializeField]
     private int numRunnersAlive; // Counter to track no. of runners alive
     private List<Runner> runners;
 
     [Header("Genetic Algorithm")]
-    private int generationNum = 0;
     [SerializeField]
     private float mutateChance = 0.1f;
+    [SerializeField]
+    private int generationNum = 0;
     private List<NN> childrenNN;
     private float[] crossProbabilities;
+
+    [Header("Logging")]
+    private string logPath;
+    private StreamWriter writer;
 
     private void Awake()
     {
         manager = this;
+        
+        // Logging setup
+        logPath = Application.persistentDataPath + $"/Logs/GA_Log_{DateTime.Now.ToString("yyyyMMdd_HH-mm-ss")}.txt";
+        Debug.Log($"Log path: {logPath}");
+        writer = new StreamWriter(File.Create(logPath));
     }
 
     private void Start()
@@ -64,9 +75,9 @@ public class Manager : MonoBehaviour
             Runner _runner = Instantiate(runnerPrefab, runnerSpawn.position, Quaternion.identity).GetComponent<Runner>();
             // If after generation 0, set the runner's NN to a child NN
             if(generationNum > 0)
-                _runner.Init(childrenNN[i]);
+                _runner.Init(childrenNN[i], $"{generationNum}x{i}");
             else
-                _runner.Init();
+                _runner.Init(null, $"{generationNum}x{i}");
             // Add to list
             runners.Add(_runner);
         }
@@ -107,7 +118,7 @@ public class Manager : MonoBehaviour
             r -= crossProbabilities[index];
             index++;
         }
-        return (index - 1);
+        return (Math.Max(0, index - 1));
     }
 
     // Get 2 parents
@@ -161,6 +172,7 @@ public class Manager : MonoBehaviour
 
     private void GenEnd()
     {
+        LogGen();
         // Create an array of normalised fitness scores
         crossProbabilities = GetNormalisedRunnerFitness();
 
@@ -188,6 +200,15 @@ public class Manager : MonoBehaviour
         SpawnRunners();
     }
 
+    private void LogGen()
+    {
+        writer.WriteLine($"===== Gen {generationNum} =====");
+        foreach(Runner _runner in runners)
+        {
+            writer.WriteLine(_runner.GetLoggingInfo());
+        }
+    }
+
     public void EndConditionMet(Runner eliteRunner)
     {
         Debug.Log($"===== {eliteRunner.nn.Name} has met the end condition! =====");
@@ -199,5 +220,10 @@ public class Manager : MonoBehaviour
         string save = $"{eliteRunner.nn.Name}:\n{DataHelper.GetArrayToString(eliteRunner.nn.GetFlattennedDNA())}";
         string destinationPath = Application.persistentDataPath + "/eliteRunnerDNA.txt";
         File.WriteAllText(destinationPath, save);
+    }
+
+    private void OnApplicationQuit()
+    {
+        writer.Close();
     }
 }

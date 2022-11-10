@@ -21,6 +21,7 @@ public class Runner : MonoBehaviour
 
     private Rigidbody rb;
 
+    public string Name;
     private NN _nn;
     public NN nn { get {return _nn;} } // public getter of private variable nn
     public float fitness;
@@ -37,12 +38,14 @@ public class Runner : MonoBehaviour
     }
 
     // Constructor
-    public void Init(NN setNN = null)
+    public void Init(NN setNN = null, string name = null)
     {
+        Name = name;
+
         if(setNN != null)
             _nn = setNN; // Set _nn to given nn
         else
-            _nn = new NN(5, 4); // Initialise new NN
+            _nn = new NN(5, 4, name); // Initialise new NN
     }
 
     private void FixedUpdate()
@@ -160,6 +163,14 @@ public class Runner : MonoBehaviour
         Freeze();
         GetFitness(); // Get fitness score
         Manager.manager.RunnerDie(); // Call manager method
-        Debug.Log($"{gameObject.name} fitness: {fitness}");
+    }
+
+    public string GetLoggingInfo()
+    {
+        return @$"===== {Name}:
+        hLW: {DataHelper.Get2DArrayToString(_nn.HLW)}
+        oW: {DataHelper.GetArrayToString(_nn.OW)}
+        Fitness: {fitness}
+        ";
     }
 }
