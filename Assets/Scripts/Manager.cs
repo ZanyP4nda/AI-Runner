@@ -31,6 +31,8 @@ public class Manager : MonoBehaviour
     private float mutateChance = 0.1f;
     [SerializeField]
     private int generationNum = 0;
+    [SerializeField]
+    private int maxGenNum = 30;
     private List<NN> childrenNN;
     private float[] crossProbabilities;
 
@@ -64,6 +66,25 @@ public class Manager : MonoBehaviour
 
     private void SpawnRunners()
     {
+//        // Initialise a new list of runners
+//        runners = new List<Runner>();
+//        // Set runner counter to number of runners
+//        numRunnersAlive = numRunners;
+//        // Spawn 'numRunners' no. of runners at 'runnerSpawn'
+//        for (int i = 0; i < numRunners; i++)
+//        {
+//            // Instantiate a runner and add its Runner component to the list of runners
+//            Runner _runner = Instantiate(runnerPrefab, runnerSpawn.position, Quaternion.identity).GetComponent<Runner>();
+//            // If after generation 0, set the runner's NN to a child NN
+//            if(generationNum > 0)
+//                _runner.Init(childrenNN[i], $"{generationNum}x{i}");
+//            else
+//                _runner.Init(null, $"{generationNum}x{i}");
+//            // Add to list
+//            runners.Add(_runner);
+//        }
+//        Debug.Log($"Spawned runner generation {generationNum}");
+
         // Initialise a new list of runners
         runners = new List<Runner>();
         // Set runner counter to number of runners
@@ -72,15 +93,23 @@ public class Manager : MonoBehaviour
         for (int i = 0; i < numRunners; i++)
         {
             // Instantiate a runner and add its Runner component to the list of runners
-            Runner _runner = Instantiate(runnerPrefab, runnerSpawn.position, Quaternion.identity).GetComponent<Runner>();
-            // If after generation 0, set the runner's NN to a child NN
-            if(generationNum > 0)
-                _runner.Init(childrenNN[i], $"{generationNum}x{i}");
-            else
-                _runner.Init(null, $"{generationNum}x{i}");
+            Runner _runner = Instantiate(runnerPrefab).GetComponent<Runner>();
+            _runner.Init(runnerSpawn, null, $"{generationNum}x{i}");
             // Add to list
             runners.Add(_runner);
         }
+        Debug.Log($"Spawned runner generation {generationNum}");
+    }
+
+    private void ResetRunners()
+    {
+        // Set runner counter to number of runners
+        numRunnersAlive = numRunners;
+        for (int i = 0; i < numRunners; i++)
+        {
+            runners[i].Init(runnerSpawn, childrenNN[i], $"{generationNum}x{i}");
+        }
+        Debug.Log($"Reset runner generation {generationNum}");
     }
 
     // To be called by runners to track number of alive runners
@@ -104,6 +133,8 @@ public class Manager : MonoBehaviour
             fitness[i] = (fitness[i] - minFitness) / (maxFitness - minFitness);
         }
 
+        Debug.Log($"Gen {generationNum}: Get normalised runner fitness");
+
         return fitness;
     }
 
@@ -113,7 +144,7 @@ public class Manager : MonoBehaviour
         float r = UnityEngine.Random.Range(0, 1f);
         // Probability algorithm
         int index = 0;
-        while(r > 0)
+        while(r > 0 || index >= crossProbabilities.Length)
         {
             r -= crossProbabilities[index];
             index++;
@@ -124,13 +155,17 @@ public class Manager : MonoBehaviour
     // Get 2 parents
     private Tuple<NN, NN> GetCrossParents()
     {
+        Debug.Log($"Gen {generationNum}: Get cross parents");
         // Get 1 index
         int parent1Index = GetCrossIndex();
         // Get another index
         int parent2Index = GetCrossIndex();
         // Make sure the 2nd index is not the same as the first
         while(parent2Index == parent1Index)
+        {
+            Debug.Log("Reroll parent2Index");
             parent2Index = GetCrossIndex();
+        }
 
         return Tuple.Create(runners[parent1Index].nn, runners[parent2Index].nn);
     }
@@ -154,6 +189,8 @@ public class Manager : MonoBehaviour
         NN child2NN = new NN(parent1.NumInputs, parent1.NumHidden, $"Runner{generationNum}x{childrenNN.Count+1}", false);
         child2NN.SetBrain(child2DNA);
 
+        Debug.Log($"Gen {generationNum}: Cross over");
+
         return Tuple.Create(child1NN, child2NN);
     }
 
@@ -163,6 +200,7 @@ public class Manager : MonoBehaviour
         // If random mutation chance is met
         if(UnityEngine.Random.Range(0f, 1f) <= mutateChance)
         {
+            Debug.Log("Mutating");
             // Assign a random element in the child DNA to a random value betweeen -1 and 1
             _flatChildDNA[UnityEngine.Random.Range(0, _flatChildDNA.Length)] = UnityEngine.Random.Range(-1f, 1f);
         }
@@ -172,6 +210,16 @@ public class Manager : MonoBehaviour
 
     private void GenEnd()
     {
+        if(generationNum + 1 == maxGenNum)
+        {
+            foreach(Runner _runner in runners)
+                _runner.Freeze();
+            Debug.LogError("Max generation met");
+            return;
+        }
+
+        Debug.Log("Gen end");
+
         LogGen();
         // Create an array of normalised fitness scores
         crossProbabilities = GetNormalisedRunnerFitness();
@@ -192,12 +240,8 @@ public class Manager : MonoBehaviour
 
         generationNum++;
 
-        // Destroy all runners
-        foreach(Runner _runner in runners)
-            GameObject.Destroy(_runner.gameObject);
-
-        // Spawn new generation of runners
-        SpawnRunners();
+        // Reset runners
+        ResetRunners();
     }
 
     private void LogGen()

@@ -38,9 +38,15 @@ public class Runner : MonoBehaviour
     }
 
     // Constructor
-    public void Init(NN setNN = null, string name = null)
+    public void Init(Transform spawn, NN setNN = null, string name = null)
     {
         Name = name;
+
+        // Reset
+        transform.position = spawn.position;
+        transform.rotation = Quaternion.identity;
+        if(!isMoving)
+            isMoving = true;
 
         if(setNN != null)
             _nn = setNN; // Set _nn to given nn
