@@ -134,7 +134,6 @@ GameObject:
   - component: {fileID: 91965911}
   - component: {fileID: 91965910}
   - component: {fileID: 91965909}
-  - component: {fileID: 91965908}
   m_Layer: 0
   m_Name: Floor
   m_TagString: Untagged
@@ -142,19 +141,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!65 &91965908
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 91965907}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &91965909
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -281,7 +267,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 652426688}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -21.7, y: 1.594, z: -14.71}
+  m_LocalPosition: {x: -21.7, y: 2, z: -14.71}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -515,7 +501,7 @@ GameObject:
   - component: {fileID: 1263591898}
   m_Layer: 0
   m_Name: Wall (2)
-  m_TagString: Untagged
+  m_TagString: stage
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -612,7 +598,7 @@ GameObject:
   - component: {fileID: 1293527466}
   m_Layer: 0
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: stage
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -844,7 +830,7 @@ GameObject:
   - component: {fileID: 1539116844}
   m_Layer: 0
   m_Name: Wall (1)
-  m_TagString: Untagged
+  m_TagString: stage
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -941,7 +927,7 @@ GameObject:
   - component: {fileID: 1574893231}
   m_Layer: 0
   m_Name: Wall (3)
-  m_TagString: Untagged
+  m_TagString: stage
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1059,10 +1045,11 @@ MonoBehaviour:
   runnerSpawn: {fileID: 652426689}
   numRunners: 100
   numRunnersAlive: 0
-  mutateChance: 0.1
+  mutateChance: 0.4
   generationNum: 0
-  maxGenNum: 50
+  maxGenNum: 100
   maxFitness: 0
+  maxFitnessGen: 0
 --- !u!4 &1595721361
 Transform:
   m_ObjectHideFlags: 0
@@ -1092,7 +1079,7 @@ GameObject:
   - component: {fileID: 1881581810}
   m_Layer: 0
   m_Name: Wall
-  m_TagString: Untagged
+  m_TagString: stage
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

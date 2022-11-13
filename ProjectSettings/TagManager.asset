@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Checkpoint
   - checkpointParent
+  - stage
   layers:
   - Default
   - TransparentFX

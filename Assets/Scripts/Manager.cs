@@ -201,6 +201,7 @@ public class Manager : MonoBehaviour
 
     private void GenEnd()
     {
+        Debug.Log(numRunnersAlive);
         LogGen();
         if(generationNum + 1 == maxGenNum)
         {

@@ -34,17 +34,18 @@ public class Runner : MonoBehaviour
         SetRangefinders();
         // Initialise ranges
         ranges = new float[rangefinders.Length];
-
     }
 
     // Constructor
     public void Init(Transform spawn, NN setNN = null, string name = null)
     {
         Name = name;
+        gameObject.name = name;
 
         // Reset
         transform.position = spawn.position;
         transform.rotation = Quaternion.identity;
+
         if(!isMoving)
             isMoving = true;
 
@@ -58,6 +59,7 @@ public class Runner : MonoBehaviour
     {
         if(isMoving)
         {
+            SetRangefinders();
             // Get inputs
             Scan();
             // Normalise all inputs
@@ -125,7 +127,7 @@ public class Runner : MonoBehaviour
     private void Move(float rotAmt)
     {
         // Rotate runner by 'rotAmt' amount
-        transform.rotation = Quaternion.Euler(transform.eulerAngles + Vector3.up * rotAmt * rotSpeed);
+        rb.rotation = Quaternion.Euler(transform.eulerAngles + Vector3.up * rotAmt * rotSpeed);
         rb.MovePosition(transform.position + transform.forward * speed * Time.deltaTime);
     }
 
@@ -145,8 +147,8 @@ public class Runner : MonoBehaviour
                 // Increment lap count
                 currentLap++;
 
-                // If completed 3 laps, call Manager method
-                if(currentLap > 3)
+                // If completed 2 laps, call Manager method
+                if(currentLap > 2)
                     Manager.manager.EndConditionMet(this);
             }
         }
