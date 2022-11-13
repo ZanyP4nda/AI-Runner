@@ -120,20 +120,20 @@ public class Manager : MonoBehaviour
             GenEnd();            
     }
 
+    // Get the probability of runner selection based on fitness
     private float[] GetNormalisedRunnerFitness()
     {
         // Create an array of all runners' fitness
         float[] fitness = runners.Select(x => x.fitness).ToArray();
+        Debug.Log($"Runner fitness: {DataHelper.GetArrayToString(fitness)}");
+        
+        // Get the total fitness
+        float sumFitness = fitness.Sum();
 
-        // Normalise fitness scores
-        float minFitness = fitness.Min();
-        float maxFitness = fitness.Max();
         for (int i = 0; i < fitness.Length; i++)
         {
-            fitness[i] = (fitness[i] - minFitness) / (maxFitness - minFitness);
+            fitness[i] = fitness[i] / sumFitness;
         }
-
-        Debug.Log($"Gen {generationNum}: Get normalised runner fitness");
 
         return fitness;
     }
@@ -159,7 +159,6 @@ public class Manager : MonoBehaviour
     // Get 2 parents
     private Tuple<NN, NN> GetCrossParents()
     {
-        Debug.Log($"Gen {generationNum}: Get cross parents");
         // Get 1 index
         int parent1Index = GetCrossIndex();
         // Get another index
@@ -231,17 +230,18 @@ public class Manager : MonoBehaviour
 
         // Instantiate childrenNN list
         childrenNN = new List<NN>();
-//        // Use the probability-based system to get runners to cross
-//        for (int i = 0; i < numRunners / 2; i++)
-//        {
-//            // Get the 2 parents to cross
-//            var (parent1, parent2) = GetCrossParents(); /* FREEZE HERE */
-//            // Cross over
+
+        // Use the probability-based system to get runners to cross
+        for (int i = 0; i < numRunners / 2; i++)
+        {
+            // Get the 2 parents to cross
+            var (parent1, parent2) = GetCrossParents();
+            // Cross over
 //            var (child1, child2) = CrossOver(parent1, parent2);
 //            // Add children to list
 //            childrenNN.Add(child1);
 //            childrenNN.Add(child2);
-//        }
+        }
 
 //        generationNum++;
 //
