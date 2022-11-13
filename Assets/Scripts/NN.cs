@@ -25,9 +25,9 @@ public class NN
         return Math.Max(0, x);
     }
 
-    private float Sigmoid(float x)
+    private float SoftSign(float x)
     {
-        return (float)(1 / (1 + Math.Pow(Math.E, -x)));
+        return x / (1 + Math.Abs(x));
     }
 
     // Constructor
@@ -100,7 +100,7 @@ public class NN
             _outputOut += oW[i] * hiddenActivation[i];
         }
         // Return the activation of the output node
-        return Sigmoid(_outputOut);
+        return SoftSign(_outputOut);
     }
 
     // Get flattened

@@ -35,6 +35,8 @@ public class Manager : MonoBehaviour
     private int maxGenNum = 30;
     [SerializeField]
     private float maxFitness = 0f;
+    [SerializeField]
+    private int maxFitnessGen = 0;
     private List<NN> childrenNN;
     private float[] crossProbabilities;
 
@@ -122,7 +124,10 @@ public class Manager : MonoBehaviour
     private void CheckMaxFitness(float fitness)
     {
         if(fitness > maxFitness)
+        {
             maxFitness = fitness;
+            maxFitnessGen = generationNum;
+        }
     }
 
     private int GetCrossIndex()

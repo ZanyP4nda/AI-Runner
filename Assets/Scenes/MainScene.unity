@@ -1057,11 +1057,11 @@ MonoBehaviour:
   checkpoints: []
   runnerPrefab: {fileID: 4033479211470298731, guid: a502eac3d718a284aa9f4f60c4453fdb, type: 3}
   runnerSpawn: {fileID: 652426689}
-  numRunners: 10
+  numRunners: 100
   numRunnersAlive: 0
-  mutateChance: 0.2
+  mutateChance: 0.1
   generationNum: 0
-  maxGenNum: 20
+  maxGenNum: 50
   maxFitness: 0
 --- !u!4 &1595721361
 Transform:
