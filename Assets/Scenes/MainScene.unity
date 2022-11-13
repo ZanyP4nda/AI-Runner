@@ -1061,7 +1061,7 @@ MonoBehaviour:
   numRunnersAlive: 0
   mutateChance: 0.1
   generationNum: 0
-  maxGenNum: 3
+  maxGenNum: 5
 --- !u!4 &1595721361
 Transform:
   m_ObjectHideFlags: 0

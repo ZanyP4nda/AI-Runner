@@ -140,16 +140,20 @@ public class Manager : MonoBehaviour
 
     private int GetCrossIndex()
     {
+        int output = 0;
         // Get a random float between 0 and 1
         float r = UnityEngine.Random.Range(0, 1f);
         // Probability algorithm
-        int index = 0;
-        while(r > 0 || index >= crossProbabilities.Length)
+        for(int i = 0; i < crossProbabilities.Length; i++)
         {
-            r -= crossProbabilities[index];
-            index++;
+            r -= crossProbabilities[i];
+            if(r < 0)
+            {
+                output = i;
+                break;
+            }
         }
-        return (Math.Max(0, index - 1));
+        return output;
     }
 
     // Get 2 parents
@@ -219,29 +223,30 @@ public class Manager : MonoBehaviour
         }
 
         Debug.Log("Gen end");
-
         LogGen();
+
         // Create an array of normalised fitness scores
         crossProbabilities = GetNormalisedRunnerFitness();
+        Debug.Log($"crossProbabilities: {DataHelper.GetArrayToString(crossProbabilities)}");
 
         // Instantiate childrenNN list
         childrenNN = new List<NN>();
-        // Use the probability-based system to get runners to cross
-        for (int i = 0; i < numRunners / 2; i++)
-        {
-            // Get the 2 parents to cross
-            var (parent1, parent2) = GetCrossParents();
-            // Cross over
-            var (child1, child2) = CrossOver(parent1, parent2);
-            // Add children to list
-            childrenNN.Add(child1);
-            childrenNN.Add(child2);
-        }
+//        // Use the probability-based system to get runners to cross
+//        for (int i = 0; i < numRunners / 2; i++)
+//        {
+//            // Get the 2 parents to cross
+//            var (parent1, parent2) = GetCrossParents(); /* FREEZE HERE */
+//            // Cross over
+//            var (child1, child2) = CrossOver(parent1, parent2);
+//            // Add children to list
+//            childrenNN.Add(child1);
+//            childrenNN.Add(child2);
+//        }
 
-        generationNum++;
-
-        // Reset runners
-        ResetRunners();
+//        generationNum++;
+//
+//        // Reset runners
+//        ResetRunners();
     }
 
     private void LogGen()
