@@ -33,6 +33,8 @@ public class Manager : MonoBehaviour
     private int generationNum = 0;
     [SerializeField]
     private int maxGenNum = 30;
+    [SerializeField]
+    private float maxFitness = 0f;
     private List<NN> childrenNN;
     private float[] crossProbabilities;
 
@@ -66,25 +68,6 @@ public class Manager : MonoBehaviour
 
     private void SpawnRunners()
     {
-//        // Initialise a new list of runners
-//        runners = new List<Runner>();
-//        // Set runner counter to number of runners
-//        numRunnersAlive = numRunners;
-//        // Spawn 'numRunners' no. of runners at 'runnerSpawn'
-//        for (int i = 0; i < numRunners; i++)
-//        {
-//            // Instantiate a runner and add its Runner component to the list of runners
-//            Runner _runner = Instantiate(runnerPrefab, runnerSpawn.position, Quaternion.identity).GetComponent<Runner>();
-//            // If after generation 0, set the runner's NN to a child NN
-//            if(generationNum > 0)
-//                _runner.Init(childrenNN[i], $"{generationNum}x{i}");
-//            else
-//                _runner.Init(null, $"{generationNum}x{i}");
-//            // Add to list
-//            runners.Add(_runner);
-//        }
-//        Debug.Log($"Spawned runner generation {generationNum}");
-
         // Initialise a new list of runners
         runners = new List<Runner>();
         // Set runner counter to number of runners
@@ -98,7 +81,6 @@ public class Manager : MonoBehaviour
             // Add to list
             runners.Add(_runner);
         }
-        Debug.Log($"Spawned runner generation {generationNum}");
     }
 
     private void ResetRunners()
@@ -109,7 +91,6 @@ public class Manager : MonoBehaviour
         {
             runners[i].Init(runnerSpawn, childrenNN[i], $"{generationNum}x{i}");
         }
-        Debug.Log($"Reset runner generation {generationNum}");
     }
 
     // To be called by runners to track number of alive runners
@@ -125,17 +106,23 @@ public class Manager : MonoBehaviour
     {
         // Create an array of all runners' fitness
         float[] fitness = runners.Select(x => x.fitness).ToArray();
-        Debug.Log($"Runner fitness: {DataHelper.GetArrayToString(fitness)}");
         
         // Get the total fitness
         float sumFitness = fitness.Sum();
 
         for (int i = 0; i < fitness.Length; i++)
         {
+            CheckMaxFitness(fitness[i]);
             fitness[i] = fitness[i] / sumFitness;
         }
 
         return fitness;
+    }
+
+    private void CheckMaxFitness(float fitness)
+    {
+        if(fitness > maxFitness)
+            maxFitness = fitness;
     }
 
     private int GetCrossIndex()
@@ -166,7 +153,6 @@ public class Manager : MonoBehaviour
         // Make sure the 2nd index is not the same as the first
         while(parent2Index == parent1Index)
         {
-            Debug.Log("Reroll parent2Index");
             parent2Index = GetCrossIndex();
         }
 
@@ -192,8 +178,6 @@ public class Manager : MonoBehaviour
         NN child2NN = new NN(parent1.NumInputs, parent1.NumHidden, $"Runner{generationNum}x{childrenNN.Count+1}", false);
         child2NN.SetBrain(child2DNA);
 
-        Debug.Log($"Gen {generationNum}: Cross over");
-
         return Tuple.Create(child1NN, child2NN);
     }
 
@@ -203,7 +187,6 @@ public class Manager : MonoBehaviour
         // If random mutation chance is met
         if(UnityEngine.Random.Range(0f, 1f) <= mutateChance)
         {
-            Debug.Log("Mutating");
             // Assign a random element in the child DNA to a random value betweeen -1 and 1
             _flatChildDNA[UnityEngine.Random.Range(0, _flatChildDNA.Length)] = UnityEngine.Random.Range(-1f, 1f);
         }
@@ -213,6 +196,7 @@ public class Manager : MonoBehaviour
 
     private void GenEnd()
     {
+        LogGen();
         if(generationNum + 1 == maxGenNum)
         {
             foreach(Runner _runner in runners)
@@ -221,12 +205,8 @@ public class Manager : MonoBehaviour
             return;
         }
 
-        Debug.Log("Gen end");
-        LogGen();
-
         // Create an array of normalised fitness scores
         crossProbabilities = GetNormalisedRunnerFitness();
-        Debug.Log($"crossProbabilities: {DataHelper.GetArrayToString(crossProbabilities)}");
 
         // Instantiate childrenNN list
         childrenNN = new List<NN>();
@@ -237,16 +217,16 @@ public class Manager : MonoBehaviour
             // Get the 2 parents to cross
             var (parent1, parent2) = GetCrossParents();
             // Cross over
-//            var (child1, child2) = CrossOver(parent1, parent2);
-//            // Add children to list
-//            childrenNN.Add(child1);
-//            childrenNN.Add(child2);
+            var (child1, child2) = CrossOver(parent1, parent2);
+            // Add children to list
+            childrenNN.Add(child1);
+            childrenNN.Add(child2);
         }
 
-//        generationNum++;
-//
-//        // Reset runners
-//        ResetRunners();
+        generationNum++;
+
+        // Reset runners
+        ResetRunners();
     }
 
     private void LogGen()

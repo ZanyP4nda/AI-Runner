@@ -1059,9 +1059,10 @@ MonoBehaviour:
   runnerSpawn: {fileID: 652426689}
   numRunners: 10
   numRunnersAlive: 0
-  mutateChance: 0.1
+  mutateChance: 0.2
   generationNum: 0
-  maxGenNum: 5
+  maxGenNum: 20
+  maxFitness: 0
 --- !u!4 &1595721361
 Transform:
   m_ObjectHideFlags: 0
