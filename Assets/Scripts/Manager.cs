@@ -49,7 +49,7 @@ public class Manager : MonoBehaviour
         manager = this;
         
         // Logging setup
-        logPath = Application.persistentDataPath + $"/Logs/GA_Log_{DateTime.Now.ToString("yyyyMMdd_HH-mm-ss")}.txt";
+        logPath = Application.dataPath + $"/Logs/Logs/GA_Log_{DateTime.Now.ToString("yyyyMMdd_HH-mm-ss")}.txt";
         Debug.Log($"Log path: {logPath}");
         writer = new StreamWriter(File.Create(logPath));
     }
@@ -253,7 +253,7 @@ public class Manager : MonoBehaviour
 
         // Write eliteRunner DNA to file
         string save = $"{eliteRunner.nn.Name}:\n{DataHelper.GetArrayToString(eliteRunner.nn.GetFlattennedDNA())}";
-        string destinationPath = Application.persistentDataPath + "/eliteRunnerDNA.txt";
+        string destinationPath = Application.dataPath + "/Logs/eliteRunnerDNA.txt";
         File.WriteAllText(destinationPath, save);
     }
 
