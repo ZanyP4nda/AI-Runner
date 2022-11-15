@@ -252,9 +252,16 @@ public class Manager : MonoBehaviour
             runner.Freeze();
 
         // Write eliteRunner DNA to file
-        string save = $"{eliteRunner.nn.Name}:\n{DataHelper.GetArrayToString(eliteRunner.nn.GetFlattennedDNA())}";
+        string save = $"{eliteRunner.nn.Name}:\n{DataHelper.GetArrayToString(eliteRunner.nn.GetFlattennedDNA(), false)}";
         string destinationPath = Application.dataPath + "/Logs/eliteRunnerDNA.txt";
         File.WriteAllText(destinationPath, save);
+    }
+
+    private float[] GetEliteRunnerDNA()
+    {
+        string savePath = Application.dataPath + "/Logs/eliteRunnerDNA.txt";
+        // Get DNA from file and convert it to float[] array
+        return Array.ConvertAll(File.ReadAllLines(savePath)[1].Split(','), float.Parse);
     }
 
     private void OnApplicationQuit()
