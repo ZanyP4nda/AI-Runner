@@ -1,8 +1,8 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 public class MapBuilder : MonoBehaviour
 {
+    [Header("Level Builder")]
     [SerializeField]
     private Camera lvlBuilderCam;
     [SerializeField]
@@ -10,6 +10,14 @@ public class MapBuilder : MonoBehaviour
 
     public Material defaultMat;
     public Material transparent;
+
+    [Header("Checkpoint Config")]
+    [SerializeField]
+    private RouteAlignmentFinder finder;
+    [SerializeField]
+    private GameObject checkpointParent;
+    [SerializeField]
+    private GameObject checkpointPrefab;
 
     public static MapBuilder mapBuilder;
 
@@ -31,20 +39,34 @@ public class MapBuilder : MonoBehaviour
         {
             AddBlock();
         }
+
+        // Add checkpoint on middle click
+        if(Input.GetMouseButtonDown(2))
+        {
+            AddCheckpoint();
+        }
+    }
+
+    // Get a raycast from the mouse pointer to the world
+    private RaycastHit GetMouseToWorld()
+    {
+        RaycastHit hit;
+        // Get a ray from the mouse position on the screen
+        Ray ray = lvlBuilderCam.ScreenPointToRay(Input.mousePosition);
+        // Cast a ray
+        Physics.Raycast(ray, out hit, Mathf.Infinity);
+
+        return hit;
     }
 
     private Block GetBlockUnderMouse()
     {
         Block output = null;
-        RaycastHit hit;
-        // Get a ray from the mouse position on the screen
-        Ray ray = lvlBuilderCam.ScreenPointToRay(Input.mousePosition);
-        // Cast a ray
-        if(Physics.Raycast(ray, out hit, Mathf.Infinity))
-        {
-            // Return the block
-            output = (Block)hit.collider.GetComponentInParent(typeof(Block));
-        }
+
+        RaycastHit hit = GetMouseToWorld();
+        if(!hit.Equals(null))
+            output = (Block)hit.collider.GetComponentInParent(typeof(Block)); // Get the block the ray hits
+
         return output;
     }
 
@@ -64,6 +86,18 @@ public class MapBuilder : MonoBehaviour
             GetBlockUnderMouse().AddBlock();
         }
         catch{}
+    }
+
+    private void AddCheckpoint()
+    {
+        Debug.Log("Add checkpoint");
+        RaycastHit hit = GetMouseToWorld();
+        if(!hit.Equals(null) && hit.collider.CompareTag("map floor")) {
+            // Instantiate the checkpoint
+            GameObject newCheckpoint = Instantiate(checkpointPrefab, hit.point, Quaternion.AngleAxis(finder.GetRouteAngle(hit.point), Vector3.up));
+            // Set checkpoint parent
+            newCheckpoint.transform.SetParent(checkpointParent.transform);
+        }
     }
 
     public void SaveMap()
