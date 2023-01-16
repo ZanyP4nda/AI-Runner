@@ -3,47 +3,41 @@ using UnityEngine;
 public class Block : MonoBehaviour
 {
     private MeshRenderer meshRend;
-    private Collider collider;
+    private GameObject colliderObj;
     [SerializeField]
     private bool isPerim = false;
 
-    public bool isExist = true;
+    public bool IsExist = true;
 
     private void Start()
     {
         meshRend = (MeshRenderer)GetComponentInChildren(typeof(MeshRenderer));
+        colliderObj = transform.GetChild(1).gameObject;
     }
 
     public void RemoveBlock()
     {
-        if(isExist && !isPerim)
+        if(IsExist && !isPerim)
         {
             // Make block transparent
             meshRend.material = MapBuilder.mapBuilder.transparent;
-
-            // Get collider if not yet
-            if(!collider)
-                collider = (Collider)GetComponentInChildren(typeof(Collider));
-            // Disable collider
-            collider.enabled = false;
-            // Disable block's collider
+            // Set layer to "disabled"
+            colliderObj.layer = 8;
             // Set exist to false
-            isExist = false;
+            IsExist = false;
         }
     }
     
     public void AddBlock()
     {
-        if(!isExist)
+        if(!IsExist)
         {
             // Make block opaque
             meshRend.material = MapBuilder.mapBuilder.defaultMat;
-            // Enable collider
-            collider.enabled = true;
+            // Set layer back to default
+            colliderObj.layer = 0;
             // Set exist to true
-            isExist = true;
-
-            Debug.Log($"Add {gameObject.name}");
+            IsExist = true;
         }
     }
 }

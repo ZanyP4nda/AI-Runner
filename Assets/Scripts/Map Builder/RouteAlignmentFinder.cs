@@ -58,6 +58,6 @@ public class RouteAlignmentFinder : MonoBehaviour
     {
         transform.position = new Vector3(finderPos.x, 0, finderPos.z);
         Scan();
-        return 45 * DataHelper.GetMinIndex(ranges);
+        return 45 * DataHelper.GetMinIndex(ranges) + 90;
     }
 }
