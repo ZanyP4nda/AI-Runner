@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isPerim: 0
-  isExist: 1
+  IsExist: 1
 --- !u!1001 &8178085768815797107
 PrefabInstance:
   m_ObjectHideFlags: 0

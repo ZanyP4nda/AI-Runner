@@ -5,19 +5,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+/// Custom class to serialize checkpoints to a JSON file
 [Serializable]
 public class CheckpointData
 {
     public float[] pos;
     public float[] rot;
 
-    public CheckpointData(Vector3 _pos, Quaternion  _rot)
+    public CheckpointData(Vector3 _pos, Quaternion _rot)
     {
         pos = new float[3] {_pos.x, _pos.y, _pos.z};
         rot = new float[3] {_rot.x, _rot.y, _rot.z};
     }
 }
 
+/// Custom class to serialize maps to a JSON file
 public class Map
 {
     public List<int> DisabledBlockIndexes = new();
@@ -59,6 +61,11 @@ public class MapBuilder : MonoBehaviour
     private void Awake()
     {
         mapBuilder = this;
+    }
+
+    private void Start()
+    {
+        LoadMap("test");
     }
 
     private void Update()
@@ -133,11 +140,14 @@ public class MapBuilder : MonoBehaviour
         catch{}
     }
 
+    /// Add a checkpoint at the mouse point
     private void AddCheckpoint()
     {
+        // Exit function if still cooling down
         if(isCheckpointClickCooldown)
             return;
 
+        // Get the point where the mouse points at the map (on layers 0 and 7)
         RaycastHit hit = GetMouseToWorld(new int[] {0, 7});
         if(!hit.collider.CompareTag("map floor"))
             return;
@@ -150,6 +160,7 @@ public class MapBuilder : MonoBehaviour
         StartCoroutine(CheckpointClickDelay());
     }
 
+    /// Coroutine to delay checkpoint clicks
     private IEnumerator CheckpointClickDelay()
     {
         isCheckpointClickCooldown = true;
@@ -157,6 +168,7 @@ public class MapBuilder : MonoBehaviour
         isCheckpointClickCooldown = false;
     }
 
+    /// Save active map to a JSON file
     public void SaveMap()
     {
         string saveName = saveTextInput.GetComponent<TMP_InputField>().text;
@@ -167,23 +179,29 @@ public class MapBuilder : MonoBehaviour
         }
         Map newMap = new();
 
+        // Get all blocks in mapParent
         Block[] blocks = mapParent.GetComponentsInChildren<Block>();
+
+        // Add the disabled blocks indices to newMap
         for (int i = 0; i < blocks.Length; i++)
         {
             if(!blocks[i].IsExist)
                 newMap.DisabledBlockIndexes.Add(i);
         }
 
+        // Add all checkpoints to newMap
         for(int i = 0; i < checkpointParent.childCount; i++)
         {
             Transform checkpoint = checkpointParent.GetChild(i);
-            newMap.Checkpoints.Add(new CheckpointData(checkpoint.position, checkpoint.localRotation));
+            newMap.Checkpoints.Add(new CheckpointData(checkpoint.position, checkpoint.rotation));
         }
 
+        // Write newMap to a JSON file
         string jsonMap = JsonUtility.ToJson(newMap);
         StreamWriter writer = new(File.Create($"{Application.dataPath}/Maps/{saveName}.json"));
         writer.Write(jsonMap);
         writer.Close();
+
         Debug.Log("Finished saving map...");
     }
 
@@ -203,5 +221,7 @@ public class MapBuilder : MonoBehaviour
             GameObject newCheckpoint = Instantiate(checkpointPrefab, new Vector3(checkpoint.pos[0], checkpoint.pos[1], checkpoint.pos[2]), Quaternion.Euler(checkpoint.rot[0], checkpoint.rot[1], checkpoint.rot[2]));
             newCheckpoint.transform.SetParent(checkpointParent);
         }
+
+        reader.Close();
     }
 }

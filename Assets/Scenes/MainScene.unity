@@ -1172,7 +1172,7 @@ MonoBehaviour:
   checkpoints: []
   runnerPrefab: {fileID: 4033479211470298731, guid: a502eac3d718a284aa9f4f60c4453fdb, type: 3}
   runnerSpawn: {fileID: 652426689}
-  numRunners: 5
+  numRunners: 20
   numRunnersAlive: 0
   mutateChance: 0.4
   generationNum: 0
